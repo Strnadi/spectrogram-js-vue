@@ -1,6 +1,8 @@
 /*eslint-disable no-unused-lets*/
 /*global d3*/
 
+import * as d3 from 'd3';
+
 /**
  * Helper function for loading one or more sound files
  */

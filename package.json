@@ -3,7 +3,7 @@
   "description": "A Vue component for visualizing audio spectrograms.",
   "repository": "github:Strnadi/spectrogram-js-vue",
   "homepage": "https://github.com/Strnadi/spectrogram-js-vue",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "author": "vlandham",
   "keywords": [
