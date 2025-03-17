@@ -29,35 +29,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<style scoped>
-:deep(canvas), :deep(svg) {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-:deep(.spectrogram) {
-  position: relative;
-}
-
-:deep(.axis) {
-  font: 14px sans-serif;
-}
-
-:deep(.axis path), :deep(.axis line) {
-  fill: none;
-}
-
-:deep(.axis line) {
-  shape-rendering: crispEdges;
-  stroke: #444;
-  stroke-width: 1.0px;
-  stroke-dasharray: 2, 4;
-}
-
-:deep(#progress-line) {
-  stroke: #a50f15;
-  stroke-width: 4px;
-}
-</style>

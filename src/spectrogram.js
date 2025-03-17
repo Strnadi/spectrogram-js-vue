@@ -181,20 +181,51 @@ class Spectrogram {
                 this.draw();
             });
 
+        d3.select(this.selector)
+            .style('display', 'flex')
+            .style('flex-direction', 'column')
+            .style('align-items', 'center')
+            .style('row-gap', '8px');
+
+        d3.select(this.selector)
+            .append('div')
+            .attr('id', 'spectrogram-container')
+            .style('position', 'relative')
+            .style('width', `${this.width}px`)
+            .style('height', `${this.height}px`);
+        
+        d3.select(this.selector)
+            .append('div')
+            .attr('id', 'spectrogram-controls-container')
+            .style('display', 'flex')
+            .style('flex-direction', 'row')
+            .style('justify-content', 'flex-end')
+            .style('column-gap', '10px')
+            .style('width', '100%');
+
+
+        this.originalSelector = this.selector;
+        this.controlsSelector = `#spectrogram-controls-container`;
+        this.selector = `#spectrogram-container`;
+
         this.canvas = d3.select(this.selector)
             .append('canvas')
             .attr('class', 'vis_canvas')
             .attr('width', this.width)
             .attr('height', this.height)
-            .style('padding', `${d3.map(this.margin).values().join('px ')}px`);
+            .style('position', 'absolute')
+            .style('top', `0px`)
+            .style('left', `0px`);
 
         this.svg = d3.select(this.selector)
             .append('svg')
-            .attr('width', this.width + this.margin.left + this.margin.right)
-            .attr('height', this.height + this.margin.top + this.margin.bottom)
+            .attr('width', this.width)
+            .attr('height', this.height)
+            .style('position', 'absolute')
+            .style('top', `0px`)
+            .style('left', `0px`)
             .call(this.zoom)
-            .append('g')
-            .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+            .append('g');
 
         // loading spinner
         this.spinner = this.svg.append('g')
@@ -206,24 +237,28 @@ class Spectrogram {
             .attr('x1', 0)
             .attr('x2', 0)
             .attr('y1', 0)
-            .attr('y2', this.height);
+            .attr('y2', this.height)
+            .attr('style', 'stroke: #a50f15; stroke-width: 4px;');
 
-        this.playButton = d3.select(this.selector)
+        this.playButton = d3.select(this.controlsSelector)
             .append('button')
-            .style('margin-top', `${this.height + this.margin.top + this.margin.bottom + 20}px`)
             .text('Play')
+            .attr('class', 'secondary')
+            .style('padding', '8px')
             .on('click', () => this.play());
 
-        this.pauseButton = d3.select(this.selector)
+        this.pauseButton = d3.select(this.controlsSelector)
             .append('button')
-            .style('margin-top', `${this.height + this.margin.top + this.margin.bottom + 20}px`)
             .text('Pause')
+            .attr('class', 'secondary')
+            .style('padding', '8px')
             .on('click', () => this.pauseResume());
 
-        this.stopButton = d3.select(this.selector)
+        this.stopButton = d3.select(this.controlsSelector)
             .append('button')
-            .style('margin-top', `${this.height + this.margin.top + this.margin.bottom + 20}px`)
             .text('Stop')
+            .attr('class', 'secondary')
+            .style('padding', '8px')
             .on('click', () => this.stop());
 
         const freqs = [];
@@ -231,10 +266,9 @@ class Spectrogram {
             freqs.push(this.getBinFrequency(i).toFixed(4));
         }
 
-        this.freqSelect = d3.select(this.selector)
+        const that = this;
+        this.freqSelect = d3.select(this.controlsSelector)
             .append('select')
-            .style('margin-top', `${this.height + this.margin.top + this.margin.bottom + 20}px`)
-            .style('margin-left', '20px')
             .on('change', function() {
                 const newFreq = this.options[this.selectedIndex].value;
                 that.yScale.domain([0, newFreq]);
@@ -280,11 +314,13 @@ class Spectrogram {
 
         this.gX = this.svg.append('g')
             .attr('class', 'x axis')
+            .attr('style', 'font: 14px sans-serif;')
             .attr('transform', `translate(0,${this.height})`)
             .call(this.xAxis);
 
         this.svg.append('g')
             .attr('class', 'y axis')
+            .attr('style', 'font: 14px sans-serif;')
             .call(this.yAxis);
 
         this.play();
@@ -294,7 +330,7 @@ class Spectrogram {
         if (this.isPlaying && this.isLoaded) {
             this.curDuration = (this.context.currentTime - this.startTime);
 
-            window.requestAnimFrame(this.showProgress.bind(this));
+            window.requestAnimationFrame(this.showProgress.bind(this));
 
             if (this.curDuration >= this.buffer.duration || this.curDuration >= this.endTime) {
                 this.progressLine.attr('y2', 0);
@@ -308,7 +344,7 @@ class Spectrogram {
 
         if (this.isLoaded) {
             this.volume.gain.value = 1;
-            window.requestAnimFrame(this.showProgress.bind(this));
+            window.requestAnimationFrame(this.showProgress.bind(this));
         }
 
         this.startTime = this.context.currentTime;
@@ -388,7 +424,7 @@ class Spectrogram {
                 this.pauseButton.text('Pause');
             });
             this.isPlaying = true;
-            window.requestAnimFrame(this.showProgress.bind(this));
+            window.requestAnimationFrame(this.showProgress.bind(this));
         }
     }
 
@@ -429,7 +465,7 @@ class Spectrogram {
         this.svg.select('.x.axis').call(this.xAxis);
         this.svg.select('.y.axis').call(this.yAxis);
 
-        visContext.clearRect(0, 0, this.width + this.margin.left, this.height);
+        visContext.clearRect(0, 0, this.width, this.height);
 
         // slice the array - increases performance
         const startIndex = Math.floor((this.xScale.domain()[0] / this.timeRange[1]) * this.data.length) || 0;
